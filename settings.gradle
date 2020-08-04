@@ -1,2 +1,5 @@
+include ':androidlb2'
+include ':kotlinlib'
+include ':androidlib'
 include ':app'
 rootProject.name = "GradleCompile"
