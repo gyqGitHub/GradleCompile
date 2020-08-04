@@ -3,15 +3,15 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
+    compileSdkVersion versions.compileSdkVersion
+    buildToolsVersion versions.buildToolsVersion
 
     defaultConfig {
         applicationId "com.hsb.gradlecompile"
-        minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode rootProject.ext.versionCode
-        versionName rootProject.ext.versionName
+        minSdkVersion versions.minSdkVersion
+        targetSdkVersion versions.targetSdkVersion
+        versionCode versions.versionCode
+        versionName versions.versionName
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -39,14 +39,14 @@ android {
 
     //1.app 和依赖库 androidlib 拥有相同的维度，但是app 存在依赖库所没有的变种(free)，那么也要使用 matchingFallbacks 来提供变种匹配
     //2.依赖库 androidlb2 拥有 app 所没有的维度"size"，当app要构建"freeDebug"版本时不知道该使用 androidlb2 的largeDebug还是normalDebug，
-    //  使用 missingDimensionStrategy 'normal'
+    //  使用 missingDimensionStrategy 'size','normal','large' 优先normal
     flavorDimensions "tier"
     productFlavors{
         free{
             applicationIdSuffix ".free"
             dimension "tier"
             matchingFallbacks = ["demo","other"]
-            missingDimensionStrategy 'size','nomal','large'
+            missingDimensionStrategy 'size','xxxx','large'
         }
         pay{
             applicationIdSuffix ".pay"
@@ -76,4 +76,6 @@ dependencies {
         exclude group:"com.github.bumptech.glide",module:"gifdecoder"
     }
     annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
+    //编译时依赖项的版本以运行时依赖项的版本为准，androidlib 库的依赖项版本最高，所以运行时依赖项的版本为4.8.0
+    implementation "com.squareup.okhttp3:okhttp:4.7.0"
 }

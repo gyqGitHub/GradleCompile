@@ -3,6 +3,9 @@ package com.hsb.gradlecompile
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.gyf.immersionbar.ImmersionBar
+import com.hsb.androidlb2.test
+import okhttp3.OkHttpClient
+
 //import com.hsb.androidlib.fullScreen
 
 class MainActivity : AppCompatActivity() {
@@ -12,5 +15,8 @@ class MainActivity : AppCompatActivity() {
 
 //        fullScreen(this)
         ImmersionBar.with(this).fullScreen(true).init()
+
+        OkHttpClient.Builder().build()
+        test()
     }
 }
