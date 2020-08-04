@@ -34,6 +34,8 @@ android {
             //解决 androidlib 不包含构建类型dev时报错的情况，matchingFallbacks 设置dev匹配 androidlib 的debug构建类型
             //如果 androidlib 存在app没有的构建类型也不会报错
             matchingFallbacks = ["debug"]
+            //不加signingConfig 会没办法运行，跟debug是不一样的
+            signingConfig signingConfigs.debug
         }
     }
 
