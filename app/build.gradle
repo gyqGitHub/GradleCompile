@@ -46,11 +46,16 @@ android {
             applicationIdSuffix ".free"
             dimension "tier"
             matchingFallbacks = ["demo","other"]
-            missingDimensionStrategy 'size','xxxx','large'
+            //当app切换至freeDev时，编译通过运行报错，但 missingDimensionStrategy 设置在 defaultConfig 中
+            //时又不会报错；而且同样的配置当切换成freeDebug 运行又不会报错。。。。
+            // 这个原因是没有pay中设置 missingDimensionStrategy 必须要所有的flavors中设置才行，这也是为什么
+            // 只在 defaultConfig 中配置时运行又不会报错的原因。。。但为什么 freeDebug 运行又不会报错呢？
+            missingDimensionStrategy 'size','normal','large'
         }
         pay{
             applicationIdSuffix ".pay"
             dimension "tier"
+            missingDimensionStrategy 'size','large'
         }
     }
 }
