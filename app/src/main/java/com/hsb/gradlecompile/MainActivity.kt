@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.gyf.immersionbar.ImmersionBar
 import com.hsb.androidlb2.test
+import com.hsb.kotlinlib.MyClass
 import okhttp3.OkHttpClient
 
 //import com.hsb.androidlib.fullScreen
@@ -18,5 +19,7 @@ class MainActivity : AppCompatActivity() {
 
         OkHttpClient.Builder().build()
         test()
+
+        MyClass()
     }
 }

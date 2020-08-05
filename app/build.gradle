@@ -53,19 +53,27 @@ android {
             ext.enableCrashlytics = false
             ext.alwaysUpdateBuildId = false
         }
+
+        staging{
+            initWith debug
+            applicationIdSuffix ".staging"
+            matchingFallbacks = ["debug"]
+        }
     }
 
     //1.app 和依赖库 androidlib 拥有相同的维度，但是app 存在依赖库所没有的变种(free)，那么也要使用 matchingFallbacks 来提供变种匹配
     //2.依赖库 androidlb2 拥有 app 所没有的维度"size"，当app要构建"freeDebug"版本时不知道该使用 androidlb2 的largeDebug还是normalDebug，
     //  使用 missingDimensionStrategy 'size','normal','large' 优先normal
-    flavorDimensions "tier"
+    //所有变种都必须属于一个指定的变种维度，即一个产品变种组。您必须将所有变种分配给某个变种维度。
+    // 如果给定的模块仅指定一个变种维度，则 Android Gradle 插件会自动将该模块的所有变种分配给该维度
+    //产品变种支持与 defaultConfig 相同的属性
+    flavorDimensions "tier","api"
     productFlavors {
         free {
             applicationIdSuffix ".free"
             dimension "tier"
             matchingFallbacks = ["demo", "other"]
-            minSdkVersion 21
-            resConfigs "zh", "xxhdpi"
+//            resConfigs "zh", "xxhdpi"
             //当app切换至freeDev时，编译通过运行报错，但 missingDimensionStrategy 设置在 defaultConfig 中
             //时又不会报错；而且同样的配置当切换成freeDebug 运行又不会报错。。。。
             // 这个原因是没有pay中设置 missingDimensionStrategy 必须要所有的flavors中设置才行，这也是为什么
@@ -79,6 +87,26 @@ android {
             missingDimensionStrategy 'size', 'large'
         }
 
+        demo{
+            dimension "tier"
+            applicationIdSuffix ".demo"
+            missingDimensionStrategy 'size', 'normal'
+        }
+
+        minApi21{
+            dimension "api"
+            minSdkVersion 21
+            applicationIdSuffix ".api21"
+            missingDimensionStrategy 'size', 'normal'
+        }
+
+        minApi23{
+            dimension "api"
+            minSdkVersion 23
+            applicationIdSuffix ".api23"
+            missingDimensionStrategy 'size', 'normal'
+        }
+
     }
 
     //尽量只有release版本才使用软编码
@@ -89,6 +117,16 @@ android {
             }
         }
     }
+
+    //过滤变体，如过滤掉demo-minApi21组合
+    variantFilter { variant ->
+        def names = variant.flavors*.name
+        if (names.contains("minApi21") && names.contains("demo")) {
+            setIgnore(true)
+        }
+    }
+
+    //源代码集的代码和资源的顺序：变体>类型>产品变种>main>第三方依赖库
 }
 
 dependencies {
@@ -103,7 +141,7 @@ dependencies {
 
     implementation project("::androidlib")
     implementation project("::androidlb2")
-    implementation project("::kotlinlib")
+    debugImplementation project("::kotlinlib")
 
     //compileOnly + implementation = api
     compileOnly 'com.gyf.immersionbar:immersionbar:3.0.0'
