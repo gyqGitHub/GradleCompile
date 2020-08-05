@@ -36,6 +36,8 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            //手动将这些类指定为主要 DEX 文件中的必需类
+//            multiDexKeepFile file('multidex-config.txt')
         }
 
         release {
@@ -156,5 +158,7 @@ dependencies {
     //编译时依赖项的版本以运行时依赖项的版本为准，androidlib 库的依赖项版本最高，所以运行时依赖项的版本为4.8.0
     implementation "com.squareup.okhttp3:okhttp:4.7.0"
 
+    //Android 5.0（API 级别 21）及更高版本使用名为 ART 的运行时，它本身支持从 APK 文件加载多个 DEX 文件。
+    //minSdkVersion 为 21 或更高的值，则默认情况下会启用 MultiDex，并且您不需要 MultiDex 支持库
     implementation "com.android.support:multidex:1.0.3"
 }
