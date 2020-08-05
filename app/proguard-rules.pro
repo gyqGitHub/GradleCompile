@@ -19,3 +19,9 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+#输出 R8 在构建项目时应用的所有规则的完整报告
+#-printconfiguration full-r8-config.txt
+#R8 从应用中移除的所有代码的报告
+#-printusage usage.txt
+# R8 根据项目的保留规则确定的入口点
+#-printseeds seeds.txt
