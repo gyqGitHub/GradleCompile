@@ -2,6 +2,8 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
+int MILLIS_IN_MINUTE = 1000 * 60
+int minutesSinceEpoch = System.currentTimeMillis() / MILLIS_IN_MINUTE
 android {
     compileSdkVersion versions.compileSdkVersion
     buildToolsVersion versions.buildToolsVersion
@@ -16,8 +18,19 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    //https://www.jianshu.com/p/39d7569237ed 打release包时禁止lint检查，打debug包时是默认是关闭的
+//    lintOptions {
+//        checkReleaseBuilds false
+//        // Or, if you prefer, you can continue to check for errors in release builds,
+//        // but continue the build even when errors are found:
+//        abortOnError false
+//    }
+
+    //gradle命令查看构建性能 ./gradlew --profile --offline --rerun-tasks assembleDebug
+    //AS 4.0 可以直接在Build-->Build Analyzer中看
     buildTypes {
         debug {
+            debuggable true//默认为true
             applicationIdSuffix ".debug"
             minifyEnabled false
         }
@@ -29,6 +42,7 @@ android {
         }
 
         dev {
+            debuggable false//默认为false
             applicationIdSuffix ".dev"
             minifyEnabled false
             //解决 androidlib 不包含构建类型dev时报错的情况，matchingFallbacks 设置dev匹配 androidlib 的debug构建类型
@@ -36,6 +50,8 @@ android {
             matchingFallbacks = ["debug"]
             //不加signingConfig 会没办法运行，跟debug是不一样的
             signingConfig signingConfigs.debug
+            ext.enableCrashlytics = false
+            ext.alwaysUpdateBuildId = false
         }
     }
 
@@ -43,21 +59,34 @@ android {
     //2.依赖库 androidlb2 拥有 app 所没有的维度"size"，当app要构建"freeDebug"版本时不知道该使用 androidlb2 的largeDebug还是normalDebug，
     //  使用 missingDimensionStrategy 'size','normal','large' 优先normal
     flavorDimensions "tier"
-    productFlavors{
-        free{
+    productFlavors {
+        free {
             applicationIdSuffix ".free"
             dimension "tier"
-            matchingFallbacks = ["demo","other"]
+            matchingFallbacks = ["demo", "other"]
+            minSdkVersion 21
+            resConfigs "zh", "xxhdpi"
             //当app切换至freeDev时，编译通过运行报错，但 missingDimensionStrategy 设置在 defaultConfig 中
             //时又不会报错；而且同样的配置当切换成freeDebug 运行又不会报错。。。。
             // 这个原因是没有pay中设置 missingDimensionStrategy 必须要所有的flavors中设置才行，这也是为什么
-            // 只在 defaultConfig 中配置时运行又不会报错的原因。。。但为什么 freeDebug 运行又不会报错呢？
-            missingDimensionStrategy 'size','normal','large'
+            // 只在 defaultConfig 中配置时运行又不会报错的原因。。。但为什么 freeDebug 运行又不会报错呢？-->
+            //测试验证发现是因为dev中的debuggable 默认为false，这跟debug默认为true不一样
+            missingDimensionStrategy 'size', 'normal', 'large'
         }
-        pay{
+        pay {
             applicationIdSuffix ".pay"
             dimension "tier"
-            missingDimensionStrategy 'size','large'
+            missingDimensionStrategy 'size', 'large'
+        }
+
+    }
+
+    //尽量只有release版本才使用软编码
+    applicationVariants.all { variant ->
+        if (variant.buildType.name == "release") {
+            variant.outputs.each { output ->
+                output.versionNameOverride = minutesSinceEpoch + "-" + variant.flavorName
+            }
         }
     }
 }
@@ -85,4 +114,6 @@ dependencies {
     annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
     //编译时依赖项的版本以运行时依赖项的版本为准，androidlib 库的依赖项版本最高，所以运行时依赖项的版本为4.8.0
     implementation "com.squareup.okhttp3:okhttp:4.7.0"
+
+    implementation "com.android.support:multidex:1.0.3"
 }
